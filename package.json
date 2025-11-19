@@ -1,0 +1,24 @@
+{
+  "name": "chatbox-server",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/MineRaphi/chatbox-server#readme",
+  "bugs": {
+    "url": "https://github.com/MineRaphi/chatbox-server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MineRaphi/chatbox-server.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
