@@ -10,6 +10,7 @@ const io = new Server(httpServer);
 
 io.on("connection", (socket) => {
     console.log("A client connected. ID:", socket.id);
+    let loggedInUser = null;
 
     // Send an event every 5 seconds
     const interval = setInterval(() => {
@@ -50,10 +51,16 @@ io.on("connection", (socket) => {
             if (user.username === username && user.passwordHash === password) {
                 console.log("User logged in successfully. ID:", socket.id, "User Name:", username);
                 socket.emit("login_success", "Login successful.");
+                loggedInUser = username;
                 return;
             }
         }
         socket.emit("login_failed", "Invalid username or password.");
+    });
+
+    socket.on("chatMessage", (msg) => {
+        console.log("Message from ID:", socket.id, "Message:", msg);
+        socket.broadcast.emit("chatMessage", { user: loggedInUser, message: msg.message });
     });
 });
 
