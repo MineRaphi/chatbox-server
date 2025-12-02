@@ -60,7 +60,7 @@ io.on("connection", (socket) => {
 
     socket.on("chatMessage", (msg) => {
         console.log("Message from ID:", socket.id, "Message:", msg);
-        socket.broadcast.emit("chatMessage", { user: loggedInUser, message: msg.message });
+        io.emit("chatMessage", { user: loggedInUser, message: msg.message });
     });
 });
 
