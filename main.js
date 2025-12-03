@@ -8,6 +8,8 @@ const PORT = 3847
 const httpServer = createServer();
 const io = new Server(httpServer);
 
+let chatHistory = [];
+
 io.on("connection", (socket) => {
     console.log("A client connected. ID:", socket.id);
     let loggedInUser = null;
@@ -18,7 +20,7 @@ io.on("connection", (socket) => {
     }, 5000);
 
     socket.on("disconnect", () => {
-        console.log("Client disconnected. ID:", socket.id);
+        console.log(loggedInUser, "Client disconnected. ID:", socket.id);
         clearInterval(interval);
     });
 
@@ -60,7 +62,14 @@ io.on("connection", (socket) => {
 
     socket.on("chatMessage", (msg) => {
         console.log("Message from ID:", socket.id, "Message:", msg);
+        chatHistory.push({ user: loggedInUser, message: msg.message });
         io.emit("chatMessage", { user: loggedInUser, message: msg.message });
+    });
+
+    socket.on("getChatHistory", () => {
+        console.log("Chat history requested by ID:", socket.id);
+        console.log("history: ", chatHistory);
+        socket.emit("chatHistory", chatHistory);
     });
 });
 
