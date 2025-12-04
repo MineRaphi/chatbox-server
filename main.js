@@ -10,6 +10,8 @@ const io = new Server(httpServer);
 
 let chatHistory = [];
 
+chatHistory.push({ user: "Server", message: `Chat since: ${new Date().toLocaleString()}` });
+
 io.on("connection", (socket) => {
     console.log("A client connected. ID:", socket.id);
     let loggedInUser = null;
@@ -68,8 +70,10 @@ io.on("connection", (socket) => {
 
     socket.on("getChatHistory", () => {
         console.log("Chat history requested by ID:", socket.id);
-        console.log("history: ", chatHistory);
         socket.emit("chatHistory", chatHistory);
+    });
+    socket.on("7tvEmote", (emoteId) => {
+        socket.broadcast.emit("7tvEmote", emoteId);
     });
 });
 
