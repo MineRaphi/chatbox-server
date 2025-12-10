@@ -16,11 +16,6 @@ io.on("connection", (socket) => {
     console.log("A client connected. ID:", socket.id);
     let loggedInUser = null;
 
-    // Send an event every 5 seconds
-    const interval = setInterval(() => {
-        socket.emit("heartbeat", { message: "Still alive!" });
-    }, 5000);
-
     socket.on("disconnect", () => {
         console.log(loggedInUser, "Client disconnected. ID:", socket.id);
         clearInterval(interval);
