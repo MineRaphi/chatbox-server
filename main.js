@@ -2,6 +2,9 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 import fs from "fs/promises";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
 
 const PORT = 3847
 
@@ -12,13 +15,20 @@ let chatHistory = [];
 
 chatHistory.push({ user: "Server", message: `Chat since: ${new Date().toLocaleString()}` });
 
+async function hashPassword(password) {
+    return await bcrypt.hash(password, SALT_ROUNDS);
+}
+
+async function verifyPassword(password, hash) {
+    return await bcrypt.compare(password, hash);
+}
+
 io.on("connection", (socket) => {
     console.log("A client connected. ID:", socket.id);
     let loggedInUser = null;
 
     socket.on("disconnect", () => {
         console.log(loggedInUser, "Client disconnected. ID:", socket.id);
-        clearInterval(interval);
     });
 
     socket.on("register", async ({ username, password }) => {
@@ -33,8 +43,10 @@ io.on("connection", (socket) => {
             }
         }
 
+        let hashedPassword = await hashPassword(password);
+
         // Modify
-        data.users.push({ username: username, passwordHash: password });
+        data.users.push({ username: username, passwordHash: hashedPassword });
 
         // Write back
         await fs.writeFile("users.json", JSON.stringify(data, null, 2));
@@ -47,7 +59,7 @@ io.on("connection", (socket) => {
         // Read
         let data = JSON.parse(await fs.readFile("users.json", "utf-8"));
         for (let user of data.users) {
-            if (user.username === username && user.passwordHash === password) {
+            if (user.username === username && await verifyPassword(password, user.passwordHash)) {
                 console.log("User logged in successfully. ID:", socket.id, "User Name:", username);
                 socket.emit("login_success", "Login successful.");
                 loggedInUser = username;
