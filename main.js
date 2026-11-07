@@ -1,4 +1,4 @@
-// server.js
+// server
 import { createServer } from "http";
 import { Server } from "socket.io";
 import fs from "fs/promises";
@@ -38,6 +38,7 @@ io.on("connection", (socket) => {
 
         for (let user of data.users) {
             if (user.name === username) {
+                console.log("User registration failed, User Name already exists. ID:", socket.id, "User Name:", username);
                 socket.emit("register_failed", "Username already exists.");
                 return;
             }
@@ -66,20 +67,28 @@ io.on("connection", (socket) => {
                 return;
             }
         }
+        console.log("Failed login from User with ID:", socket.id, "and User Name:", username);
         socket.emit("login_failed", "Invalid username or password.");
     });
 
     socket.on("chatMessage", (msg) => {
-        console.log("Message from ID:", socket.id, "Message:", msg);
-        chatHistory.push({ user: loggedInUser, message: msg.message });
-        io.emit("chatMessage", { user: loggedInUser, message: msg.message });
+        if (loggedInUser !== null) {
+            console.log("Message from ID:", socket.id, "Message:", msg);
+            chatHistory.push({ user: loggedInUser, message: msg.message });
+            io.emit("chatMessage", { user: loggedInUser, message: msg.message });
+        }
+        else {
+            console.log("Not logged in Client", socket.id, "tried to send chat message:", msg.message);
+        }
     });
 
     socket.on("getChatHistory", () => {
         console.log("Chat history requested by ID:", socket.id);
         socket.emit("chatHistory", chatHistory);
     });
+
     socket.on("7tvEmote", (emoteId) => {
+        console.log("7tvEmote", emoteId,"sent from", socket.id);
         socket.broadcast.emit("7tvEmote", emoteId);
     });
 });
