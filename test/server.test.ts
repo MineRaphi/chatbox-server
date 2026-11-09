@@ -14,3 +14,12 @@ test('accepts a socket.io connection', async () => {
   assert.equal(socket.connected, true);
   socket.disconnect();
 });
+
+test('a message over 4 KB closes the connection', async () => {
+  const socket = await connect(server);
+  const closed = new Promise<string>((resolve) =>
+    socket.once('disconnect', (reason) => resolve(reason)),
+  );
+  socket.emit('hello', { protocol: 2, name: 'x'.repeat(8 * 1024) });
+  assert.equal(await closed, 'transport close');
+});
