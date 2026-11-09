@@ -1,0 +1,16 @@
+# Run with: docker compose up -d --build
+services:
+  chatbox-server:
+    build: .
+    image: chatbox-server:2
+    restart: unless-stopped
+    ports:
+      - '3847:3847'
+    environment:
+      PORT: 3847
+      # Emotes per 10 seconds per connection; 0 turns the limit off.
+      RATE_LIMIT: 30
+    # Read-only filesystem: the server stores nothing.
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

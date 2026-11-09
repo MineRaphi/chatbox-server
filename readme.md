@@ -24,7 +24,36 @@ PORT=3848 RATE_LIMIT=0 npm start
 
 Clients connect to `<this machine's address>:<port>`. Open the port in the firewall, e.g. `sudo ufw allow 3847/tcp` on Ubuntu.
 
-### As a service on Ubuntu
+### With Docker (recommended)
+
+The repo has a `Dockerfile` and a `compose.yaml`. On the server machine, with Docker and its Compose plugin installed:
+
+```bash
+git clone https://github.com/MineRaphi/chatbox-server.git
+cd chatbox-server
+docker compose up -d --build
+```
+
+That builds the image, starts the server on port 3847, and restarts it after crashes and reboots. Change the port or rate limit in `compose.yaml`.
+
+```bash
+docker compose logs -f              # follow the log
+docker compose ps                   # status, including the health check
+git pull && docker compose up -d --build    # update to the latest version
+docker compose down                 # stop it
+```
+
+Without Compose:
+
+```bash
+docker build -t chatbox-server:2 .
+docker run -d --name chatbox-server --restart unless-stopped \
+  -p 3847:3847 -e RATE_LIMIT=30 --read-only chatbox-server:2
+```
+
+The image is about 64 MB: Node 24 on Alpine, running as an unprivileged user, with only `src/` and the runtime dependencies inside. The container's filesystem can be read-only because the server stores nothing.
+
+### As a service on Ubuntu (without Docker)
 
 To start it on boot and restart it if it crashes, create `/etc/systemd/system/chatbox-server.service`:
 
