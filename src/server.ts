@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { Server, type Socket } from 'socket.io';
 import type { Config } from './config.ts';
 import { Groups } from './groups.ts';
+import { RateLimiter } from './rate-limit.ts';
 import type { Logger } from './log.ts';
 import {
   Event,
@@ -11,6 +12,7 @@ import {
   parseEmote,
   parseHello,
   type EmoteOut,
+  type LimitedPayload,
   type MembersPayload,
   type RejectedPayload,
   type WelcomePayload,
@@ -42,6 +44,7 @@ export async function startServer(
   const http: HttpServer = createServer();
   const io = new Server(http, { maxHttpBufferSize: MAX_MESSAGE_BYTES });
   const groups = new Groups();
+  const limiters = new Map<string, RateLimiter>();
 
   function announceMembers(key: string): void {
     const payload: MembersPayload = { members: groups.names(key) };
@@ -90,12 +93,23 @@ export async function startServer(
     const emoteId = parseEmote(payload);
     if (!emoteId) return;
 
+    const take = limiters.get(socket.id)?.take() ?? { ok: true };
+    if (!take.ok) {
+      const limited: LimitedPayload = { retryInMs: take.retryInMs };
+      socket.emit(Event.Limited, limited);
+      return;
+    }
+
     const out: EmoteOut = { emoteId, from: member.name };
     socket.to(Groups.room(member.key)).emit(Event.Emote, out);
   }
 
   io.on('connection', (socket) => {
     log.info(`connect ${socket.id}`);
+    limiters.set(
+      socket.id,
+      new RateLimiter(config.rateLimit, config.rateWindowMs),
+    );
 
     // A malformed payload must never take the server down.
     const safely =
@@ -111,6 +125,7 @@ export async function startServer(
     socket.on(Event.Emote, safely(onEmote));
 
     socket.on('disconnect', (reason) => {
+      limiters.delete(socket.id);
       const key = groups.delete(socket.id);
       if (key !== null) announceMembers(key);
       log.info(`disconnect ${socket.id} (${reason})`);
