@@ -1,7 +1,8 @@
 {
   "name": "chatbox-server",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Relays 7TV emotes between Chatbox clients in the same group",
   "homepage": "https://github.com/MineRaphi/chatbox-server#readme",
   "bugs": {
     "url": "https://github.com/MineRaphi/chatbox-server/issues"
@@ -11,18 +12,28 @@
     "url": "git+https://github.com/MineRaphi/chatbox-server.git"
   },
   "license": "ISC",
-  "author": "",
+  "author": "MineRaphi",
   "type": "module",
-  "main": "main.js",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
-    "start": "node main.js",
-    "server": "node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.ts",
+    "dev": "node --watch src/index.ts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint && oxfmt --check",
+    "lint:fix": "oxlint --fix && oxfmt --write",
+    "check": "npm run typecheck && npm run lint"
   },
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "express": "^5.1.0",
-    "lowdb": "^7.0.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0",
+    "socket.io-client": "^4.8.4",
+    "typescript": "^6.0.3"
   }
 }
