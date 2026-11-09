@@ -46,10 +46,12 @@ docker compose down                 # stop it
 Without Compose:
 
 ```bash
-docker build -t chatbox-server:2 .
+docker build --network=host -t chatbox-server:2 .
 docker run -d --name chatbox-server --restart unless-stopped \
   -p 3847:3847 -e RATE_LIMIT=30 --read-only chatbox-server:2
 ```
+
+The build uses the host's network (`network: host` in `compose.yaml`, `--network=host` above). On some machines, for example Ubuntu with systemd-resolved and Tailscale, the build containers otherwise can't resolve `registry.npmjs.org`, and `npm ci` fails with `EAI_AGAIN`, even though normal containers resolve it fine. The running server doesn't use the host network.
 
 The image is about 64 MB: Node 24 on Alpine, running as an unprivileged user, with only `src/` and the runtime dependencies inside. The container's filesystem can be read-only because the server stores nothing.
 

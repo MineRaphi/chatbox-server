@@ -1,7 +1,13 @@
 # Run with: docker compose up -d --build
 services:
   chatbox-server:
-    build: .
+    build:
+      context: .
+      # Build steps (npm ci) use the host's network. On some hosts, e.g.
+      # Ubuntu with systemd-resolved and Tailscale, BuildKit's own build
+      # network can't resolve registry.npmjs.org (npm fails with EAI_AGAIN)
+      # even though normal containers can. Only affects building.
+      network: host
     image: chatbox-server:2
     restart: unless-stopped
     ports:
