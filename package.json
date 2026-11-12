@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/MineRaphi/chatbox-server.git"
   },
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "author": "MineRaphi",
   "type": "module",
   "engines": {

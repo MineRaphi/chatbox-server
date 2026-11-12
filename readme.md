@@ -144,3 +144,11 @@ src/
   log.ts
 test/            node:test tests
 ```
+
+## License and disclaimer
+
+Copyright (c) 2025-2026 MineRaphi
+
+chatbox-server is free software, licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). It's the GPL with one addition: if you run a changed version as a server that others connect to, you must offer them its source code too. You may use, change and share it, as long as you pass on the full source code, including your changes, under the same license. The copyright notice must stay, and changes must be marked.
+
+This software is provided "as is", without warranty of any kind. Use it at your own risk; the author is not liable for any damage or loss resulting from its use, including running it on a public server.
